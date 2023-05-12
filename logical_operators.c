@@ -26,7 +26,7 @@ int execute_command(char **command)
 		command++;
 	}
 
-	return result;
+	return (result);
 }
 
 int execute_subcommand(char **subcommand)
@@ -60,10 +60,10 @@ int execute_subcommand(char **subcommand)
 				return 0; /* Subcommand failed */
 		}
 		else
-			return 0; /* Subcommand terminated abnormally */
+			return (0); /* Subcommand terminated abnormally */
 	}
 
-	return 1; /* Subcommand succeeded */
+	return (1); /* Subcommand succeeded */
 }
 
 int main(void)
@@ -73,5 +73,5 @@ int main(void)
 
 	printf("Result: %s\n", result ? "True" : "False");
 
-	return 0;
+	return (0);
 }

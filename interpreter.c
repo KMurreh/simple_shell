@@ -1,66 +1,75 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/types.h>
 
-#define BUFFER_SIZE 1024
+#define MAX_COMMAND_LENGTH 100
 
 /**
- * main - Entry point of the program.
- * Return: 0 on success.
+ *execute_command - Execute a command in the shell
+ *@command: The command to execute
+ *Return: 0 on success, -1 on failure
+ */
+int execute_command(char *command)
+{
+int status;
+pid_t pid;
+
+pid = fork();
+if (pid == -1)
+{
+perror("fork");
+return (-1);
+}
+else if (pid == 0)
+{
+/* Child process */
+if (execve(command, NULL, environ) == -1)
+{
+perror("execve");
+exit(EXIT_FAILURE);
+}
+}
+else
+{
+/* Parent process */
+do {
+if (waitpid(pid, &status, 0) == -1)
+{
+perror("waitpid");
+return (-1);
+}
+} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+}
+
+return (0);
+}
+/**
+ *main - Entry point of the program
+ *Return: Always 0
  */
 int main(void)
 {
-    char buffer[BUFFER_SIZE];
-    char *command;
+char command[MAX_COMMAND_LENGTH];
 
-    while (1) {
-        // Display prompt
-        printf("$ ");
-        fflush(stdout);
+while (1)
+{
+printf("$ "); /* Display prompt */
+fflush(stdout);
 
-        // Read input
-        if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
-            printf("\n");
-            break;
-        }
+if (fgets(command, sizeof(command), stdin) == NULL)
+{
+printf("\n"); /* Handle EOF (Ctrl+D) */
+break;
+}
 
-        // Remove trailing newline
-        buffer[strcspn(buffer, "\n")] = '\0';
+command[strcspn(command, "\n")] = '\0'; /* Remove trailing newline */
 
-        // Parse command
-        command = strtok(buffer, " ");
+if (execute_command(command) == -1)
+{
+fprintf(stderr, "Failed to execute command\n");
+continue;
+}
+}
 
-        if (command == NULL) {
-            continue;
-        }
-
-        // Check if command exists
-        if (access(command, F_OK) == -1) {
-            printf("%s: command not found\n", command);
-            continue;
-        }
-
-        // Create child process
-        pid_t pid = fork();
-
-        if (pid == -1) {
-            perror("fork");
-            exit(1);
-        } else if (pid == 0) {
-            // Child process
-            char *argv[] = {command, NULL};
-            execve(command, argv, environ);
-            perror("execve");
-            exit(1);
-        } else {
-            // Parent process
-            int status;
-            wait(&status);
-        }
-    }
-
-    return 0;
+return (0);
 }

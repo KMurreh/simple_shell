@@ -3,65 +3,75 @@
 #include <unistd.h>
 #include <string.h>
 
-#define MAX_PATH_LENGTH 1024
-
 /**
- * change_directory - Changes the current directory of the process.
- * @directory: The directory to change to.
- * Return: 0 on success, -1 on failure.
- */
-int change_directory(const char *directory)
-{
-    char path[MAX_PATH_LENGTH];
-
-    if (directory == NULL || strcmp(directory, "") == 0) {
-        directory = getenv("HOME");
-        if (directory == NULL) {
-            fprintf(stderr, "cd: No home directory found\n");
-            return -1;
-        }
-    } else if (strcmp(directory, "-") == 0) {
-        directory = getenv("OLDPWD");
-        if (directory == NULL) {
-            fprintf(stderr, "cd: No previous directory found\n");
-            return -1;
-        }
-    }
-
-    if (chdir(directory) != 0) {
-        fprintf(stderr, "cd: Failed to change directory to %s\n", directory);
-        return -1;
-    }
-
-    if (getcwd(path, sizeof(path)) == NULL) {
-        fprintf(stderr, "cd: Failed to get current directory\n");
-        return -1;
-    }
-
-    if (setenv("PWD", path, 1) != 0) {
-        fprintf(stderr, "cd: Failed to set PWD environment variable\n");
-        return -1;
-    }
-
-    printf("Current directory: %s\n", path);
-    return 0;
-}
-
-/**
- * main - Entry point of the program.
- * Return: 0 on success.
+ * Changes the current directory of the process.
+ * Command syntax: cd [DIRECTORY]
+ * If no argument is given to cd, the command is interpreted as cd $HOME.
+ * Handles the command cd -
+ * Updates the environment variable PWD when changing directory.
+ *
+ * @param argc The number of command-line arguments.
+ * @param argv An array of strings containing the command-line arguments.
+ * @return Returns 0 on success, or a non-zero value on failure.
  */
 int main(int argc, char *argv[])
 {
-    if (argc > 2) {
-        fprintf(stderr, "Usage: %s [DIRECTORY]\n", argv[0]);
-        return 1;
-    }
+char *directory = NULL;
+char current_directory[4096];
 
-    const char *directory = (argc == 2) ? argv[1] : NULL;
-    if (change_directory(directory) != 0) {
-        return 1;
-    }
+/* Check if an argument is provided */
+if (argc > 1)
+{
+/* Check if the argument is cd - */
+if (strcmp(argv[1], "-") == 0)
+{
+/* Change to the previous directory stored in PWD environment variable */
+directory = getenv("OLDPWD");
+if (directory == NULL)
+{
+fprintf(stderr, "cd: OLDPWD not set\n");
+return (1);
+}
+}
+else
+{
+/* Change to the specified directory */
+directory = argv[1];
+}
+}
+else
+{
+/* No argument provided, change to $HOME directory */
+directory = getenv("HOME");
+if (directory == NULL)
+{
+fprintf(stderr, "cd: HOME not set\n");
+return (1);
+}
+}
 
-    return 0;
+/* Store the current directory in the environment variable OLDPWD */
+if (getcwd(current_directory, sizeof(current_directory)) == NULL)
+{
+fprintf(stderr, "cd: Error getting current directory\n");
+return (1);
+}
+setenv("OLDPWD", current_directory, 1);
+
+/* Change the current directory */
+if (chdir(directory) != 0)
+{
+fprintf(stderr, "cd: %s: No such file or directory\n", directory);
+return (1);
+}
+
+/* Update the environment variable PWD */
+if (getcwd(current_directory, sizeof(current_directory)) == NULL)
+{
+fprintf(stderr, "cd: Error getting current directory\n");
+return (1);
+}
+setenv("PWD", current_directory, 1);
+
+return (0);
 }

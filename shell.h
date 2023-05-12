@@ -29,7 +29,9 @@ int change_directory(const char *directory);
 
 int execute_command(const char *command);
 
+int sum_array(int arr[], int size); 
 
+extern char **environ;
 
 
 
