@@ -11,28 +11,39 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+int sum_array(int arr[], int size);
+
+void execute_command(const char *command);
+
 int main(int argc, char *argv[]);
 
-int main(void);
+int main(int argc, char *argv[]);
+
+int execute_command(char *command);
+
+void handle_variable_replacement(char *command);
 
 int main(int argc, char *argv[]);
 
-int main(int argc, char *argv[], char *envp[]);
+void print_environment(void);
 
-int tokenize_string(const char *str, char tokens[][MAX_TOKEN_LENGTH]);
+char *_getline(void);
 
-void exit_shell(int status);
+int main(int argc, char *argv[]);
 
-int set_env(const char *variable, const char *value);
+int execute_command(char *command, char *path);
 
-int change_directory(const char *directory);
+int execute_command(char *command, char *arguments[], int num_arguments);
 
-int execute_command(const char *command);
+void exit_shell(void);
 
-int sum_array(int arr[], int size); 
+int execute_commands_separated_by_semicolon(void);
 
-extern char **environ;
+int execute_command(char *command);
 
+int split_string(const char *str, char tokens[][MAX_TOKEN_LENGTH]);
+
+int main(int argc, char *argv[])
 
 
 #endif /* SHELL_H */
