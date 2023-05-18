@@ -1,56 +1,64 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 #define MAX_COMMAND_LENGTH 100
+#define MAX_VARIABLE_LENGTH 20
 
-void handle_variable_replacement(char *command);
-
+/**
+ * handle_variable_replacement - Replaces "$?" and "$$" variables in command.
+ * @command: The command string to modify.
+ */
 void handle_variable_replacement(char *command)
 {
-    char result[MAX_COMMAND_LENGTH];
+char *variable;
+char *value;
+char *replacement;
+char temp[MAX_COMMAND_LENGTH];
 
-    while (*command != '\0')
-    {
-        if (*command == '$')
-        {
-            if (*(command + 1) == '?')
-            {
-                sprintf(result, "%d", WEXITSTATUS(system(NULL)));
-                printf("%s", result);
-                command += 2;
-            }
-            else if (*(command + 1) == '$')
-            {
-                sprintf(result, "%d", getpid());
-                printf("%s", result);
-                command += 2;
-            }
-            else
-            {
-                printf("$");
-                command++;
-            }
-        }
-        else
-        {
-            printf("%c", *command);
-            command++;
-        }
-    }
+/* Replace "$?" with the return code of the last command */
+variable = "$?";
+value = "0";  /* Assuming last command was successful */
+replacement = strstr(command, variable);
+while (replacement != NULL)
+{
+strcpy(temp, replacement + strlen(variable));
+sprintf(replacement, "%d%s", atoi(value), temp);
+replacement = strstr(command, variable);
 }
 
+/* Replace "$$" with the process ID of the shell */
+variable = "$$";
+value = (char *)malloc(MAX_VARIABLE_LENGTH * sizeof(char));
+sprintf(value, "%d", getpid());
+replacement = strstr(command, variable);
+while (replacement != NULL)
+{
+strcpy(temp, replacement + strlen(variable));
+sprintf(replacement, "%s%s", value, temp);
+replacement = strstr(command, variable);
+}
+
+free(value);
+}
+
+/**
+ * main - Main function.
+ * Return: Returns 0 upon successful execution.
+ */
 int main(void)
 {
-    char command[MAX_COMMAND_LENGTH];
+char command[MAX_COMMAND_LENGTH];
 
-    printf("Enter a command: ");
-    fgets(command, MAX_COMMAND_LENGTH, stdin);
-    command[strcspn(command, "\n")] = '\0';
+/* Example command */
+strcpy(command, "echo $? $$");
 
-    handle_variable_replacement(command);
-    printf("\n");
+/* Handle variable replacement */
+handle_variable_replacement(command);
 
-    return 0;
+/* Print the modified command */
+printf("Modified Command: %s\n", command);
+
+return (0);
 }

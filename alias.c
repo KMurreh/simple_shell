@@ -1,96 +1,105 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 
 #define MAX_ALIASES 100
 #define MAX_ALIAS_LENGTH 50
 
-struct Alias {
-    char name[MAX_ALIAS_LENGTH];
-    char value[MAX_ALIAS_LENGTH];
-};
-
-struct Alias aliases[MAX_ALIASES];
-int aliasCount = 0;
-
+/* Function Declarations */
 void print_aliases(void);
-void print_alias(char *name);
-void define_alias(char *name, char *value);
+void print_alias(const char *name);
+void define_alias(const char *name, const char *value);
 
-void print_aliases(void)
-{
-    int i;
-    for (i = 0; i < aliasCount; i++)
-    {
-        printf("%s='%s'\n", aliases[i].name, aliases[i].value);
-    }
-}
+/* Global Variables */
+char aliases[MAX_ALIASES][MAX_ALIAS_LENGTH];
+char values[MAX_ALIASES][MAX_ALIAS_LENGTH];
+int num_aliases = 0;
 
-void print_alias(char *name)
-{
-    int i;
-    for (i = 0; i < aliasCount; i++)
-    {
-        if (strcmp(name, aliases[i].name) == 0)
-        {
-            printf("%s='%s'\n", aliases[i].name, aliases[i].value);
-            return;
-        }
-    }
-}
-
-void define_alias(char *name, char *value)
-{
-    int i;
-    for (i = 0; i < aliasCount; i++)
-    {
-        if (strcmp(name, aliases[i].name) == 0)
-        {
-            strcpy(aliases[i].value, value);
-            return;
-        }
-    }
-
-    if (aliasCount < MAX_ALIASES)
-    {
-        strcpy(aliases[aliasCount].name, name);
-        strcpy(aliases[aliasCount].value, value);
-        aliasCount++;
-    }
-    else
-    {
-        fprintf(stderr, "Reached maximum number of aliases.\n");
-    }
-}
-
+/**
+ * main - Entry point of the simple_shell program.
+ * @argc: The number of command line arguments.
+ * @argv: An array of strings containing the command line arguments.
+ *
+ * Return: 0 on success, or exit status on failure.
+ */
 int main(int argc, char *argv[])
 {
-    if (argc == 1)
-    {
-        print_aliases();
-    }
-    else if (argc == 2)
-    {
-        print_alias(argv[1]);
-    }
-    else
-    {
-        int i;
-        for (i = 1; i < argc; i++)
-        {
-            char *name = strtok(argv[i], "=");
-            char *value = strtok(NULL, "=");
+if (argc == 1)
+{
+print_aliases();
+}
+else if (argc == 2)
+{
+print_alias(argv[1]);
+}
+else
+{
+for (int i = 1; i < argc; i++)
+{
+char *name = strtok(argv[i], "=");
+char *value = strtok(NULL, "=");
 
-            if (name != NULL && value != NULL)
-            {
-                define_alias(name, value);
-            }
-            else
-            {
-                fprintf(stderr, "Invalid alias definition: %s\n", argv[i]);
-            }
-        }
-    }
+if (name != NULL && value != NULL)
+{
+define_alias(name, value);
+}
+}
+}
 
-    return 0;
+return (0);
+}
+
+/**
+ * print_aliases - Prints all the defined aliases.
+ */
+void print_aliases(void)
+{
+for (int i = 0; i < num_aliases; i++)
+{
+printf("%s='%s'\n", aliases[i], values[i]);
+}
+}
+
+/**
+ * print_alias - Prints the value of the specified alias.
+ * @name: The name of the alias to print.
+ */
+void print_alias(const char *name)
+{
+for (int i = 0; i < num_aliases; i++)
+{
+if (strcmp(aliases[i], name) == 0)
+{
+printf("%s='%s'\n", aliases[i], values[i]);
+return;
+}
+}
+}
+
+/**
+ * define_alias - Defines an alias with the specified name and value.
+ * If the alias already exists, its value is replaced with the new value.
+ * @name: The name of the alias.
+ * @value: The value of the alias.
+ */
+void define_alias(const char *name, const char *value)
+{
+for (int i = 0; i < num_aliases; i++)
+{
+if (strcmp(aliases[i], name) == 0)
+{
+strcpy(values[i], value);
+return;
+}
+}
+
+if (num_aliases < MAX_ALIASES)
+{
+strcpy(aliases[num_aliases], name);
+strcpy(values[num_aliases], value);
+num_aliases++;
+}
+else
+{
+fprintf(stderr, "Error: Maximum number of aliases reached\n");
+}
 }

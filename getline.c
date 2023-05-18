@@ -1,77 +1,63 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #define BUFFER_SIZE 1024
 
 /**
- * _getline - Reads a line from input.
- * @lineptr: Pointer to the buffer storing the line.
- * Return: Number of characters read, or -1 on failure.
+ * _getline - Custom implementation of getline
+ *
+ * Description:Reads line of input from user and stores it in a buffer.
+ *              Uses static variables to keep track of buffer and its position.
+ * Return: Pointer to the read line, or NULL on failure or end-of-file.
  */
-ssize_t _getline(char **lineptr)
+char *_getline(void)
 {
-    static char buffer[BUFFER_SIZE];
-    static ssize_t buffer_pos = 0;
-    static ssize_t bytes_read = 0;
+static char buffer[BUFFER_SIZE];
+static int pos;
+static int bytes_read;
 
-    ssize_t i, bytes_to_read, total_bytes = 0;
-    char *line;
+if (pos >= bytes_read)
+{
+bytes_read = read(STDIN_FILENO, buffer, BUFFER_SIZE);
+if (bytes_read <= 0)
+return (NULL);
+pos = 0;
+}
 
-    if (lineptr == NULL)
-        return -1;
+char *line = malloc(bytes_read - pos + 1);
+if (line == NULL)
+return (NULL);
 
-    line = *lineptr;
+int i = 0;
+while (pos < bytes_read && buffer[pos] != '\n')
+line[i++] = buffer[pos++];
 
-    if (buffer_pos >= bytes_read) {
-        bytes_to_read = read(STDIN_FILENO, buffer, sizeof(buffer));
-        if (bytes_to_read <= 0)
-            return -1;
-        buffer_pos = 0;
-        bytes_read = bytes_to_read;
-    }
+line[i] = '\0';
+pos++;
 
-    for (i = buffer_pos; i < bytes_read; i++) {
-        if (buffer[i] == '\n') {
-            line[total_bytes] = '\0';
-            buffer_pos = i + 1;
-            return total_bytes;
-        }
-
-        line[total_bytes] = buffer[i];
-        total_bytes++;
-
-        if (total_bytes >= BUFFER_SIZE - 1) {
-            line[total_bytes] = '\0';
-            return total_bytes;
-        }
-    }
-
-    line[total_bytes] = '\0';
-    buffer_pos = i;
-    return total_bytes;
+return (line);
 }
 
 /**
- * main - Entry point of the program.
- * Return: 0 on success.
+ * main - Entry point of the program
+ *
+ * Description: Reads lines of input using the custom getline function
+ *              and prints them to the console.
+ * Return: Always 0
  */
 int main(void)
 {
-    char *line = NULL;
-    size_t line_size = 0;
-    ssize_t chars_read;
+char *line;
 
-    printf("Enter a line: ");
+do {
+printf("$ ");
+line = _getline();
+if (line != NULL)
+{
+printf("You entered: %s\n", line);
+free(line);
+}
+} while (line != NULL);
 
-    chars_read = _getline(&line);
-    if (chars_read == -1) {
-        printf("Failed to read input.\n");
-        return 1;
-    }
-
-    printf("You entered %zd characters: %s\n", chars_read, line);
-
-    free(line);
-    return 0;
+return (0);
 }

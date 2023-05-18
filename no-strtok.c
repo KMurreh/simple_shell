@@ -6,51 +6,64 @@
 #define MAX_TOKEN_LENGTH 20
 
 /**
- * tokenize_string - Tokenizes a string into an array of tokens.
- * @str: The string to tokenize.
- * @tokens: Array to store the tokens.
- * Return: The number of tokens.
+ * split_string - Splits a string into tokens
+ * @str: The string to tokenize
+ * tokenize_string - Tokenizes a string into an array of tokens
+ * @tokens: The array to store the tokens
+ * Description: Splits a string into tokens using manual string manipulation.
+ * Return: The number of tokens found.
  */
-int tokenize_string(const char *str, char tokens[][MAX_TOKEN_LENGTH])
+int split_string(const char *str, char tokens[][MAX_TOKEN_LENGTH])
 {
-    int num_tokens = 0;
-    char *token, *copy;
+int num_tokens = 0;
+int token_length = 0;
 
-    copy = strdup(str);
-    if (copy == NULL) {
-        fprintf(stderr, "Failed to allocate memory\n");
-        return 0;
-    }
+for (int i = 0; str[i] != '\0'; i++)
+{
+if (str[i] == ' ')
+{
+if (token_length > 0)
+{
+tokens[num_tokens][token_length] = '\0';
+num_tokens++;
+token_length = 0;
+}
+}
+else
+{
+tokens[num_tokens][token_length] = str[i];
+token_length++;
+}
+}
 
-    token = strtok(copy, " \t\n");
-    while (token != NULL && num_tokens < MAX_TOKENS) {
-        strncpy(tokens[num_tokens], token, MAX_TOKEN_LENGTH - 1);
-        tokens[num_tokens][MAX_TOKEN_LENGTH - 1] = '\0';
-        num_tokens++;
-        token = strtok(NULL, " \t\n");
-    }
+if (token_length > 0)
+{
+tokens[num_tokens][token_length] = '\0';
+num_tokens++;
+}
 
-    free(copy);
-    return num_tokens;
+return (num_tokens);
 }
 
 /**
- * main - Entry point of the program.
- * Return: 0 on success.
+ * main - Entry point of the program
+ *
+ * Description:Splits sample string into tokens using split_string function
+ *              and prints the tokens.
+ *Return: 0 on success.
  */
 int main(void)
 {
-    const char *input = "This is a sample string";
-    char tokens[MAX_TOKENS][MAX_TOKEN_LENGTH];
-    int num_tokens, i;
+char str[] = "Hello World! Welcome to the Shell";
+char tokens[MAX_TOKENS][MAX_TOKEN_LENGTH];
 
-    num_tokens = tokenize_string(input, tokens);
+int num_tokens = split_string(str, tokens);
 
-    printf("Number of tokens: %d\n", num_tokens);
-    printf("Tokens:\n");
-    for (i = 0; i < num_tokens; i++) {
-        printf("%s\n", tokens[i]);
-    }
+printf("Tokens:\n");
+for (int i = 0; i < num_tokens; i++)
+{
+printf("%s\n", tokens[i]);
+}
 
-    return 0;
+return (0);
 }

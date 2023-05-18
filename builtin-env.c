@@ -1,34 +1,34 @@
+#include "shell.h"
+
 #include <stdio.h>
 #include <stdlib.h>
+#include "environ.h"
 
 /**
- * print_environment - Prints the current environment.
- * @envp: The array of environment variable strings.
+ * print_environment - Prints the current environment
+ *
+ * Description: Prints the environment variables of the current process.
+ * Return: Does not return a value
  */
-void print_environment(char *envp[])
+void print_environment(void)
 {
-    int i = 0;
-    while (envp[i] != NULL) {
-        printf("%s\n", envp[i]);
-        i++;
-    }
+int i;
+
+for (i = 0; environ[i] != NULL; i++)
+{
+printf("%s\n", environ[i]);
+}
 }
 
 /**
- * main - Entry point of the program.
- * @argc: The number of command-line arguments.
- * @argv: An array of command-line argument strings.
- * @envp: An array of environment variable strings.
- * Return: 0 on success.
+ * main - Entry point of the program
+ *
+ * Description:Prints current environment using the print_environment function.
+ * Return: Always 0
  */
-int main(int argc, char *argv[], char *envp[])
+int main(void)
 {
-    if (argc > 1) {
-        fprintf(stderr, "Usage: %s\n", argv[0]);
-        return 1;
-    }
+print_environment();
 
-    print_environment(envp);
-
-    return 0;
+return (0);
 }
