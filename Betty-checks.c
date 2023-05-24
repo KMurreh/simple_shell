@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include 'shell.h'
+#include "shell.h"
 
 #define MAX_SIZE 10
 
 /**
- *sum_array - Calculate the sum of elements in an array
- *@arr: The array of integers
- *@size: The size of the array
- *Return: The sum of the array elements
+ * sum_array - Calculate the sum of elements in an array
+ * @arr: The array of integers
+ * @size: The size of the array
+ * Return: The sum of the array elements
  */
 int sum_array(int arr[], int size)
 {
@@ -22,8 +22,8 @@ return (sum);
 }
 
 /**
- *main - Entry point of the program
- *Return: 0 on successful execution
+ * main - Entry point of the program
+ * Return: 0 on successful execution
  */
 int main(void)
 {
